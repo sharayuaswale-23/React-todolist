@@ -1,155 +1,237 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import './index.css';
 import { MdDelete } from "react-icons/md";
 import { MdCheckBox } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 
 
-const TodoList = ()=> {
+function Todolist() {
+  const [todos, setTodos] = useState([]);
+  const [todoText, setTodoText] = useState("");
+  const [category, setCategory] = useState("");
+  const [timePeriod, setTimePeriod] = useState("Daily");
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState("All");
+  const [editingId, setEditingId] = useState(null);
 
-    const[isCompleted, setIsCompleted] = useState(false);
-    const[alltodos,setTodos] = useState([]);
-    const[newTitle,setTitle] = useState("");
-    const[newDescription, setDescription] = useState("");
-    const[completedtodos,setCompletetodos] = useState([]);
+  // Load todos and categories from localStorage on initial render
+  useEffect(() => {
+    const savedTodos = JSON.parse(localStorage.getItem("todos"));
+    const savedCategories = JSON.parse(localStorage.getItem("categories"));
+    if (savedTodos) setTodos(savedTodos);
+    if (savedCategories) setCategories(savedCategories);
+  }, []);
 
-    const addtodo = ()=>{
-        let newtodo = {
-            title: newTitle,
-            description: newDescription
-        }
+  // Save todos and categories to localStorage whenever they change
+  useEffect(() => {
+    if (todos.length > 0) {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }
+    if (categories.length > 0) {
+      localStorage.setItem("categories", JSON.stringify(categories));
+    }
+  }, [todos, categories]);
 
-        setTitle("");
-        setDescription("");
+  const addOrEditTodo = () => {
+    if (todoText.trim() === "" || category.trim() === "") {
+      alert("TODO text, category, and time period are required!");
+      return;
+    }
 
-        let updatedtodo = [...alltodos];
-        updatedtodo.push(newtodo);
-        setTodos(updatedtodo);
-        localStorage.setItem('todolist',JSON.stringify(updatedtodo));
+    const newTodo = {
+      id: Date.now(),
+      text: todoText,
+      category,
+      timePeriod,
+      completed: false,
     };
 
-    const deletetodo = (index) => {
-        let droptodo = alltodos.filter((_, i) => i !== index);
-        localStorage.setItem('todolist', JSON.stringify(droptodo));
-        setTodos(droptodo);
+    if (editingId) {
+      // Edit existing TODO
+      setTodos(
+        todos.map((todo) =>
+          todo.id === editingId
+            ? { ...todo, text: todoText, category, timePeriod }
+            : todo
+        )
+      );
+      setEditingId(null);
+    } else {
+      // Add new TODO
+      setTodos([...todos, newTodo]);
+
+      // Update categories if necessary
+      if (!categories.includes(category)) {
+        setCategories([...categories, category]);
+      }
     }
 
-    const deletecompletedtodo = (index)=>{
-        let droptodo = completedtodos.filter((_, i) => i !== index);
-        localStorage.setItem('completedtodos', JSON.stringify(droptodo));
-        setCompletetodos(droptodo);
+    setTodoText("");
+    setCategory("");
+    setTimePeriod("Daily");
+  };
+
+  const startEditing = (id) => {
+    const todoToEdit = todos.find((todo) => todo.id === id);
+    if (todoToEdit) {
+      setTodoText(todoToEdit.text);
+      setCategory(todoToEdit.category);
+      setTimePeriod(todoToEdit.timePeriod);
+      setEditingId(id);
     }
+  };
 
-    useEffect(()=>{
-        let savedtodo = JSON.parse(localStorage.getItem('todolist'));  
-        let savecompleted = JSON.parse(localStorage.getItem('completedtodos'))
-        if(savedtodo){
-            setTodos(savedtodo);
-        } 
-        if(savecompleted){
-            setCompletetodos(savecompleted);
-        }
-    },[]);
-    
-    
+  const toggleComplete = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
 
-    const oncompleted = (index) => {
-        let now = new Date();
-        let dd = now.getDate();
-        let mm = now.getMonth() + 1;
-        let yyyy = now.getFullYear();
-        let h = now.getHours();
-        let m = now.getMinutes();
-        let s = now.getSeconds();
-        let completedOn = dd + '-' + mm +'-' + yyyy + ' at ' + h + ':' + m + ':' + s ;
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
 
-        let filtered = {
-            ...alltodos[index],
-            completedOn: completedOn
-        }
-        let updatedcompletedtodo = [...completedtodos];
-        updatedcompletedtodo.push(filtered);
-        setCompletetodos(updatedcompletedtodo);
-        deletetodo(index);
-        localStorage.setItem('completedtodos', JSON.stringify(updatedcompletedtodo));
-    }
+  // Filter todos based on category and time period
+  const filteredTodos = todos.filter((todo) => {
+    const categoryMatch =
+      selectedCategory === "All" || todo.category === selectedCategory;
+    const timePeriodMatch =
+      selectedTimePeriod === "All" || todo.timePeriod === selectedTimePeriod;
+    return categoryMatch && timePeriodMatch;
+  });
 
-    return(
-        <div className="Todo">
+  // Separate todos into completed and uncompleted
+  const uncompletedTodos = filteredTodos.filter((todo) => !todo.completed);
+  const completedTodos = filteredTodos.filter((todo) => todo.completed);
 
-            <div className="todo-main-sidebar">
-            <div className="todo-main">
-                    <div className="todo-cont">
-                        <label>Title: </label>
-                        <input type="text" value={newTitle} onChange={(e)=>setTitle(e.target.value)} placeholder="Add your task"/>
-                    </div> <br/>
-                    <div className="todo-cont">
-                        <label>Description: </label>
-                        <textarea rows={4} cols={30} type="text" value={newDescription} onChange={(e)=>setDescription(e.target.value)} placeholder="Add your description"/>
-                    </div> <br/>
-                    <div className="todo-cont">
-                        <label>Time Period: </label>
-                        <select>
-                            <option>Daily</option>
-                            <option>Weekly</option>
-                            <option>Monthly</option>
-                        </select>
-                        </div> <br/>
-                    <div className="todo-cont">
-                        <button onClick={addtodo} className="mybtn">Add</button>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="Todo">
 
-            <div className="todo-main-cont">
-
-                <h1 style={{textAlign:"center"}}>Todo-List</h1>
-                
-                <div className="status-area">
-                    <button style={{marginRight:"5px"}} className={`Btn ${isCompleted===false && 'active'}`} onClick={()=> setIsCompleted(false)}>Todo</button>
-                    <button className={`Btn ${isCompleted===true && 'active'}`} onClick={()=> setIsCompleted(true)}>Completed</button>
-                </div>
-                <div className="todolist">
-                   {
-                    isCompleted === false && alltodos.map((item,index) =>{
-                        return(
-                            <div className="list-cont" key={index}>
-                            <div style={{width:"90%", paddingRight:"15px"}} >
-                            <h3>{item.title}</h3>
-                            <p>{item.description}</p>
-                            </div>
-                            <div  style={{width:"10%"}}>
-                         <MdDelete onClick={()=>deletetodo(index)} className="icon" />
-                         <MdCheckBox onClick={()=>oncompleted(index)} className="check-icon"/>
-                         </div>
-                         </div>
-                        )
-                    })
-                   }
-
-                  {
-                    isCompleted === true && completedtodos.map((item,index) =>{
-                        return(
-                            <div className="list-cont" key={index}>
-                            <div style={{width:"90%", paddingRight:"15px"}} >
-                            <h3>{item.title}</h3>
-                            <p>{item.description}</p>
-                            <p><small>Completed On: {item.completedOn}</small></p>
-                            </div>
-                            <div  style={{width:"10%"}}>
-                         <MdDelete onClick={()=>deletecompletedtodo(index)} className="icon" />
-                         
-                         </div>
-                         </div>
-                        )
-                    })
-                   }
-                </div>
-
-                
-
-            </div>
+      {/* Input Section */}
+      <div className="todo-main-sidebar">
+        <div className="todo-main">
+      <div className="todo-cont">
+        <label>Title: </label>
+        <input
+          type="text"
+          placeholder="Enter TODO"
+          value={todoText}
+          onChange={(e) => setTodoText(e.target.value)}
+          style={{ marginRight: "10px", padding: "5px" }}
+        />
+        </div> <br/>
+        <div className="todo-cont">
+          <label>Create Category: </label>
+          <input
+          type="text"
+          placeholder="Enter Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={{ marginRight: "10px", padding: "5px" }}
+        />
+        </div> <br/>
+        <div className="todo-cont">
+          <label>Time Period: </label>
+          <select
+          value={timePeriod}
+          onChange={(e) => setTimePeriod(e.target.value)}
+          style={{ marginRight: "10px", padding: "5px" }}
+           >
+          <option value="Daily">Daily</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Monthly">Monthly</option>
+        </select>
         </div>
-    )
+        <div className="todo-cont">
+        <button onClick={addOrEditTodo} className="mybtn">
+          {editingId ? "Save Changes" : "Add TODO"}
+        </button>
+        </div> <br/>
+
+      {/* Filters */}
+      <div className="todo-cont">
+          <label>Filter by Category:</label>
+          <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          style={{ marginRight: "10px", padding: "5px" }}
+        >
+          <option value="All">All</option>
+          {categories.map((cat, index) => (
+            <option key={index} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        </div> <br/>
+        <div className="todo-cont">
+        <label>Filter by Time Period:</label>
+        <select
+          value={selectedTimePeriod}
+          onChange={(e) => setSelectedTimePeriod(e.target.value)}
+          style={{ padding: "5px" }}
+        >
+          <option value="All">All</option>
+          <option value="Daily">Daily</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Monthly">Monthly</option>
+        </select>
+        </div> <br/>
+      </div>
+      </div>
+
+      {/* Uncompleted TODOs */}
+      <div className="todo-main-cont">
+      <h3>Uncompleted TODOs</h3> <br/>
+      <ul style={{ listStyleType: "none", padding: 0 }}>
+        {uncompletedTodos.map((todo) => (
+          <li
+            key={todo.id}
+            className="list-cont"
+          >
+            <div>
+              <strong>{todo.text}</strong> <em>({todo.category})</em>{" "}
+              <span style={{ color: "#6c757d" }}>[{todo.timePeriod}]</span>
+            </div>
+            <div>
+            <MdCheckBox onClick={() => toggleComplete(todo.id)} className="check-icon mr-3"/>
+            <FaEdit   onClick={() => startEditing(todo.id)} className="check-icons"/>
+            <MdDelete onClick={() => deleteTodo(todo.id)} className="icon" />
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Completed TODOs */}
+      <br/> <h3>Completed TODOs</h3> <br/>
+      <ul style={{ listStyleType: "none", padding: 0 }}>
+        {completedTodos.map((todo) => (
+          <li
+            key={todo.id}
+           className="list-cont"
+          >
+            <div>
+              <strong>{todo.text}</strong> <em>({todo.category})</em>{" "}
+              <span style={{ color: "#6c757d" }}>[{todo.timePeriod}]</span>
+              <span style={{ marginLeft: "10px", color: "green" }}>
+                (Completed)
+              </span>
+            </div>
+            <div>
+            <MdCheckBox onClick={() => toggleComplete(todo.id)}className="check-icon mr-3"/>
+            <MdDelete onClick={() => deleteTodo(todo.id)} className="icon" />
+            </div>
+          </li>
+        ))}
+      </ul>
+      </div>
+      
+
+    </div>
+  );
 }
 
-export default TodoList;
+export default Todolist;

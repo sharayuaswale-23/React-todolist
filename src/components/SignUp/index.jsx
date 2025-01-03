@@ -10,17 +10,24 @@ const SignUp = ()=> {
 
     const navigate = useNavigate();
 
-    const[email,setemail] = useState('')
-    const[password,setpassword] = useState('')
+    const[email,setemail] = useState('');
+    const[password,setpassword] = useState('');
+    const[error, seterror] = useState('');
 
     const onsubmituserdata = async(e)=>{
         e.preventDefault();
-        try{
-            await createUserWithEmailAndPassword(auth,email, password);
-            navigate("/login");
-        }catch(error){
-            console.log("Error");
+
+        if(password.length < 6){
+            seterror("(Min. 6 characters)");
         }
+        else{
+                createUserWithEmailAndPassword(auth,email,password)
+                  .then(() => {
+                    navigate("/login");
+                  })
+                  .catch((err) => alert(err.message));
+              }
+
     }
 
     return(
@@ -40,12 +47,12 @@ const SignUp = ()=> {
                     <form onSubmit={onsubmituserdata}>
                     <div className="form-group">
                     <label style={{color:"black"}} htmlFor="exampleInputEmail1"><b> Email </b></label>
-                    <input onChange={(e) => setemail(e.target.value)} type="email" className="form-control form-rounded" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+                    <input onChange={(e) => setemail(e.target.value)} type="email" className="form-control form-rounded" id="exampleInputEmail1" aria-describedby="emailHelp" required/>
                     <small id="emailHelp" className="form-text text-muted"><b> We'll never share your user details with anyone else. </b></small>
                     </div>
                     <div className="form-group">
-                    <label style={{color:"black"}} htmlFor="exampleInputPassword1"><b> Password </b></label>
-                    <input onChange={(e) => setpassword(e.target.value)} type="password" className="form-control form-rounded" id="exampleInputPassword1"/>
+                    <label style={{color:"black"}} htmlFor="exampleInputPassword1"><b> Password </b> <small className='text-danger'>{error}</small></label> 
+                    <input onChange={(e) => setpassword(e.target.value)} type="password" className="form-control form-rounded" id="exampleInputPassword1" required/>
                     </div><br></br>
                     <button type="submit" className="button1">Sign Up</button>
 

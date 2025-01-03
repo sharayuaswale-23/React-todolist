@@ -17,11 +17,13 @@ const Login = ()=> {
         e.preventDefault();
         try{
             await signInWithEmailAndPassword(auth,email, password);
-            navigate("/todolist");
+            navigate("/home");
+            seterror("");
             
         }catch(error){
             seterror("Please enter valid ID and password");
         }
+       
     }
 
     return(
@@ -37,13 +39,17 @@ const Login = ()=> {
                 placeholder="Username"
                 value={email}
                 onChange={(e) => setemail(e.target.value)}
+                required
               />
               <input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setpassword(e.target.value)}
+                required
               />
+
+              <p className='text-danger'>{error}</p>
              
               <input type="submit" value="Login" />
              
