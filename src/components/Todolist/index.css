@@ -12,23 +12,23 @@
     width: 75%;
     box-shadow: 0px 5px 7px black;
     padding: 2%;
-    overflow-y: auto;
-    height: 100vh;
+    height: 100%;
 }
 .todo-main-sidebar{
     width: 25%;
-    padding: 2%;
 }
 .todo-main{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 10px;
 }
 .todo-cont{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: 10px;
 }
 .todo-cont label{
     font-weight: bold;
@@ -80,21 +80,13 @@
 }
 .edit{
     width: 100%;
-    background-color: rgb(44,44,44);
     display: flex;
     flex-direction: column;
+    text-align: center;
     padding: 25px;
     padding-bottom: 20px;
     padding-top: 25px;
     margin-bottom: 10px;
-    box-shadow: 0px 3px 5px rgb(43,42,42);
-}
-.edit input{
-    width: 50%;
-    margin-bottom: 10px;
-}
-.edit textarea{
-    width: 50%;
 }
 .list-cont{
     width: 100%;
@@ -105,19 +97,9 @@
     padding: 25px;
     padding-bottom: 20px;
     padding-top: 25px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     box-shadow: 0px 3px 5px rgb(43,42,42);
-}
-.list-cont h3{
-    font-size: 25px;
-    color: rgb(0,230,122);
-    font-weight: bold;
-}
-.todolist p {
-    font-size: 14px;
-    color: rgb(161,161,161);
-    margin-top: 8px;
-}
+} 
 .icon{
     font-size: 30px;
     cursor: pointer;
@@ -142,4 +124,27 @@
 }
 .check-icon:hover{
     color: rgb(4,196,106);
+}
+.Statusbtn{
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+.deletebtn{
+    padding: 5px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+.todo-main-title{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+.status-area{
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
 }

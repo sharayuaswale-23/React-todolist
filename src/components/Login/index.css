@@ -79,3 +79,42 @@
     text-decoration: underline;
     color: #aaa;
   }
+  @media (max-width: 768px) {
+    .box {
+        width: 90%; 
+        padding: 30px;
+    }
+  
+    .box input[type="text"],
+    .box input[type="password"] {
+        width: 100%; 
+        max-width: 300px; 
+    }
+  
+    .box input[type="text"]:focus,
+    .box input[type="password"]:focus {
+        width: 100%;
+        max-width: 350px; 
+  }
+  
+  @media (max-width: 480px) {
+    .box {
+        padding: 20px;
+    }
+  
+    .box h1 {
+        font-size: 1.5rem; 
+    }
+  
+    .box input[type="text"],
+    .box input[type="password"],
+    .box input[type="submit"] {
+        padding: 10px; 
+    }
+  
+    .box input[type="text"]:focus,
+    .box input[type="password"]:focus {
+        max-width: 300px; 
+    }
+  }
+  }
